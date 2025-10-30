@@ -288,6 +288,6 @@ This repository is released under the **MIT License** for educational and resear
 If you use this setup or documentation in your research, please cite:
 ```
 Bismoy, M. I. (2025). Capturing Beamforming Feedback Information (BFI) using TP-Link Archer T2U Plus and ASUS RT-AC86U on Ubuntu.
-GitHub repository: https://github.com/<your-repo-link>
+GitHub repository: https://github.com/MuttakiIslamBismoyBracu18/Capture_BFI_Ubuntu
 ```
 ---
