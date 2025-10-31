@@ -59,7 +59,8 @@ Expected output:
 ```
 Bus 003 Device 006: ID 2357:0120 TP-Link Archer T2U PLUS [RTL8821AU]
 ```
-📷 *Reference:* ![TP-Link](Adapter_Found.png)
+📷 *Reference:* 
+![TP-Link](Adapter_Found.png)
 
 ---
 
@@ -78,7 +79,8 @@ If `Secure Boot` is enabled, enroll the MOK key and reboot.
 lsmod | grep 8821
 iwconfig
 ```
-📷 *Reference:* Screenshot from 2025-10-30 14-28-15.png
+📷 *Reference:* 
+![Driver_Loaded](Adapter_NotConnectedToInternet.png)
 
 ---
 
@@ -105,7 +107,8 @@ Create a new SSID:
 SSID: ASUS_BFI_5G
 Password: bfiproject123
 ```
-📷 *Reference:* Screenshot 2025-10-29 153234.png
+📷 *Reference:* 
+![Router_Added](ASUS_Router.png)
 
 ---
 
@@ -120,7 +123,8 @@ Enable:
 - MU-MIMO ✅
 - TX Beamforming ✅
 
-📷 *Reference:* Screenshot from 2025-10-30 15-02-47.png
+📷 *Reference:* 
+![Router](Router_Config.png)
 
 ---
 
@@ -134,7 +138,8 @@ Under **Wireless → General → Band (5GHz)**:
 | Authentication | WPA2-Personal |
 | Encryption | AES |
 
-📷 *Reference:* Screenshot from 2025-10-30 15-02-47.png
+📷 *Reference:* 
+![Adapter2](TP-Link Adapter.png)
 
 ---
 
@@ -155,7 +160,8 @@ Verify connection:
 nmcli device
 iwconfig wlxb01921e7721f
 ```
-📷 *Reference:* Screenshot from 2025-10-30 16-37-52.png
+📷 *Reference:* 
+![NCTI](Adapter_NotConnectedToInternet.png)
 
 ---
 
@@ -195,7 +201,8 @@ Check the file:
 ```bash
 ls -lh ~/bfi_capture.pcapng
 ```
-📷 *Reference:* Screenshot from 2025-10-30 16-37-52.png
+📷 *Reference:* 
+![BFI](bfi_capture.pcapng)
 
 ---
 
@@ -220,7 +227,7 @@ Look for:
 - Channel Sounding
 - MCS/NSS fields
 
-📷 *Reference:* Screenshot from 2025-10-30 16-37-52.png
+📷 *Reference:* ![BFI](Captured_BFI.png)
 
 ---
 
@@ -251,17 +258,6 @@ These contain the BFI matrices for further ML or sensing applications.
 | Wireshark shows only IP packets | Capture from wrong interface | Use the TP-Link interface, not Intel’s |
 
 ---
-
-## 🧩 Example Artifacts
-
-| Screenshot | Description |
-|-------------|-------------|
-| Screenshot 2025-10-29 135918.png | Initial ASUS router login |
-| Screenshot 2025-10-29 153234.png | Router network creation |
-| Screenshot from 2025-10-30 13-03-17.png | TP-Link detected via `lsusb` |
-| Screenshot from 2025-10-30 14-28-15.png | Driver installed and interface shown |
-| Screenshot from 2025-10-30 15-02-47.png | Router 5GHz configuration |
-| Screenshot from 2025-10-30 16-37-52.png | BFI capture and Wireshark view |
 
 ---
 
