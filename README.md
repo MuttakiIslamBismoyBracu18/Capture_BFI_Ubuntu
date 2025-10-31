@@ -59,7 +59,7 @@ Expected output:
 ```
 Bus 003 Device 006: ID 2357:0120 TP-Link Archer T2U PLUS [RTL8821AU]
 ```
-📷 *Reference:* Screenshot from 2025-10-30 13-03-17.png
+📷 *Reference:* ![TP-Link](./Screenshot 2025-10-29 135918.png)
 
 ---
 
