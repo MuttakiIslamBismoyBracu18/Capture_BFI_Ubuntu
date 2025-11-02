@@ -17,7 +17,7 @@ The guide is written to help **any researcher, developer, or student** replicate
 
 ## 🧩 What This Repository Contains
 
-- 📄 **How_to_Capture_BFI.md** — The complete 2000-word step-by-step guide with all terminal commands and troubleshooting notes.
+- 📄 **How_to_Capture_BFI.md** — The complete step-by-step guide with all terminal commands and troubleshooting notes.
 - 📸 **Example screenshots** showing:
   - USB device detection
   - Driver loading and Wi-Fi interfaces
