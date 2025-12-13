@@ -41,6 +41,12 @@ sudo apt install tcpdump tshark iw net-tools
 
 ---
 
+### Connect to Router (Client)
+```bash
+nmcli dev disconnect wlp0s20f3
+nmcli dev wifi connect "ASUS_BFI_5G" password "WPA2-Personal"
+```
+
 ## 2️⃣ Plug in the ALFA Adapter
 
 Plug the ALFA AWUS036ACM into a **USB 3.0 port**.
@@ -112,11 +118,27 @@ Interface wlp0s20f3
     channel 149 (5745 MHz), width: 80 MHz
 ```
 
+### Laptop Connection using iperf3
+Sender
+```bash
+iperf3 -c 192.168.1.4 -p 5202 -u -b 400M -t 120
+```
+Receiver
+```bash
+iperf3 -s -p 5202
+```
+
+
 ---
 
 ## 6️⃣ Prepare ALFA Adapter for Monitor Mode
 
 > Interface name may differ (commonly `wlx00c0cab88d1f`).
+> Unmanage the Adapter
+
+```bash
+sudo nmcli dev set wlx00c0cab88d1f managed no
+```
 
 Bring interface down:
 ```bash
@@ -152,6 +174,21 @@ Interface wlx00c0cab88d1f
 Set to the router’s channel (e.g., Channel 149, 80 MHz width):
 ```bash
 sudo iw wlx00c0cab88d1f set channel 149 80MHz
+```
+
+Set Channel to 40
+```bash
+sudo iw dev wlx00c0cab88d1f set freq 5200 80 5210
+```
+
+Set channel to 153 @ 80 Mhz
+```bash
+sudo iw dev wlx00c0cab88d1f set freq 5765 80 5775
+```
+
+Set Channel to 157
+```bash
+sudo iw dev wlx00c0cab88d1f set freq 5785 80 5775
 ```
 
 Confirm:
@@ -204,6 +241,11 @@ Stop capture with `Ctrl + C`.
 
 ## 🔟 Verify Captured BFI Frames
 
+Total Packets Captured:
+```bash
+tshark -r bfi_R7450_3.pcapng | wc -l
+```
+
 Analyze your capture:
 ```bash
 tshark -r ~/captures/bfi_acm.pcapng -Y "wlan.vht.compressed_beamforming_report" -T fields -e frame.number | head
@@ -223,9 +265,94 @@ If nothing appears:
 - Make sure you generated **downlink** traffic.
 - Keep ALFA near both AP and STA.
 
+## Calculate BFI Rate
+
+```bash
+FILE=~/captures/bfi_R7450_1.pcapng
+read START END DURATION <<<$(tshark -r "$FILE" \
+  -Y "wlan.vht.compressed_beamforming_report" \
+  -T fields -e frame.time_relative \
+  | awk 'NR==1{start=$1} {end=$1} END{print start, end, end-start}')
+
+COUNT=$(tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" | wc -l)
+RATE=$(echo "$COUNT / $DURATION" | bc -l)
+printf "BFI Frames: %d\nDuration: %.2fs\nRate: %.2f Hz\n" "$COUNT" "$DURATION" "$RATE"
+```
+
+**Expected output (success):**
+```
+BFI Frames: 19
+Duration: 116.78s
+Rate: 0.16 Hz
+```
+
+## Look for BFI Dimensions
+```bash
+tshark -r bfi_R7450_7.pcapng -Y "wlan.vht.compressed_beamforming_report" -V | less
+```
+Here, look for Nc and Nr
+
+Nc: number of columns (= Tx antennas of AP)
+
+Nr: number of rows (= Rx antennas of STA)
+
+Dimension: 
+```bash 
+Nc X Nr
+```
+
+
 ---
 
 ## 1️⃣1️⃣ Optional: Return to Managed Mode
+
+Count Number of Device Connected to AP:
+```bash
+FILE=~/captures/bfi_ac86u_tp1.pcapng
+tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" -T fields -e wlan.sa | sort | uniq -c
+```
+
+**Connected STA/Rx to the AP**
+```bash
+FILE=~/captures/asus/157_001.pcapng
+tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" \
+  -T fields -e wlan.sa | sort | uniq -c
+```
+
+**Connected Tx [AP]**
+```bash
+tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" \
+  -T fields -e wlan.da | sort | uniq -c
+```
+
+**Per STA BFI Rate:**
+```bash
+FILE=~/captures/L_62_A_01_c1_n_1_AP_4x4.pcapng
+
+for STA in $(tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" -T fields -e wlan.sa | sort -u); do
+  COUNT=$(tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report && wlan.sa==$STA" | wc -l)
+  # Get start/end/duration for this STA's BFIs
+  read START END DURATION <<<$(tshark -r "$FILE" \
+    -Y "wlan.vht.compressed_beamforming_report && wlan.sa==$STA" \
+    -T fields -e frame.time_relative \
+    | awk 'NR==1{start=$1} {end=$1} END{if(NR==0){start=0;end=0} printf "%.6f %.6f %.6f", start, end, end-start}')
+  awk -v sta="$STA" -v c="$COUNT" -v d="$DURATION" \
+    'BEGIN{printf "STA: %s\n  BFI Frames: %d\n  Active Window: %.2fs\n  BFI Rate (active): %.2f Hz\n\n", sta, c, d, (d>0?c/d:0)}'
+done
+```
+
+```bash
+FILE=~/captures/L_62_A_01_c1_n_1_AP_4x4.pcapng
+for STA in $(tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report" -T fields -e wlan.sa | sort -u); do
+  COUNT=$(tshark -r "$FILE" -Y "wlan.vht.compressed_beamforming_report && wlan.sa==$STA" | wc -l)
+  read START END DUR <<<$(tshark -r "$FILE" \
+     -Y "wlan.vht.compressed_beamforming_report && wlan.sa==$STA" \
+     -T fields -e frame.time_relative \
+     | awk 'NR==1{s=$1} {e=$1} END{printf "%.6f %.6f %.6f", s, e, e-s}')
+  awk -v sta="$STA" -v c="$COUNT" -v d="$DUR" \
+     'BEGIN{printf "STA (Rx): %s  |  BFIs: %d  |  Active: %.2fs  |  Rate: %.2f Hz\n", sta, c, d, (d>0?c/d:0)}'
+done
+```
 
 After capture, reset the adapter:
 ```bash
