@@ -16,7 +16,7 @@ from tkinter import ttk, messagebox
 
 # ---------- Defaults ----------
 DEFAULTS = {
-    "CAPTURE_TIME": 300,
+    "CAPTURE_TIME": 60,
     "OUTDIR": "/home/obak-b/captures",
     "TMPDIR": "/tmp",
     "IF_STA": "wlp0s20f3",
